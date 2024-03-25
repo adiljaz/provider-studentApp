@@ -1,33 +1,26 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:h1/function/functions.dart';
-import 'package:h1/function/model.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:h1/provider/edit_provider.dart';
+import 'package:provider/provider.dart';
 
-class EditStudent extends StatefulWidget {
+class EditStudent extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
   final student;
 
   const EditStudent({super.key, required this.student});
 
   @override
-  State<EditStudent> createState() => _EditStudentState();
-}
-
-class _EditStudentState extends State<EditStudent> {
-  String? updatedImagepath;
-
-  final _formKey = GlobalKey<FormState>(); //  form key for the validation
-
-  final _nameController = TextEditingController();
-  final _classController = TextEditingController();
-  final _guardianController = TextEditingController();
-  final _mobileController = TextEditingController();
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+
+Provider.of<Editprovider>(context, listen: false).initiate(
+        imagepath: student.imagex,
+        name: student.name,
+        classname: student.classname,
+        father: student.father,
+        pnumber: student.pnumber);
+    return Consumer<Editprovider>(builder: (context,editstudnet,child){
+      return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Student'),
         actions: [
@@ -35,9 +28,10 @@ class _EditStudentState extends State<EditStudent> {
 
             
             onPressed: () {
-              editstudentclicked(
+            editstudnet.editstudentclicked (
                 context,
-                widget.student,
+                student,
+              editstudnet
               );
             },
             icon: const Icon(Icons.cloud_upload),
@@ -49,7 +43,7 @@ class _EditStudentState extends State<EditStudent> {
         child: Padding(
             padding: const EdgeInsets.all(20),
             child: Form(
-              key: _formKey, // Assign the form key
+              key: editstudnet.formKey, // Assign the form key
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -57,11 +51,12 @@ class _EditStudentState extends State<EditStudent> {
                   Stack(
                     children: [
                       InkWell(
-                        onTap: () => editphoto(context),
+                        onTap: () => editstudnet. editphoto(context,student,context),
                         child: CircleAvatar(
-                          backgroundImage: updatedImagepath != null
-                              ? FileImage(File(updatedImagepath!))
-                              : FileImage(File(widget.student.imagex)),
+                          // ignore: unnecessary_null_comparison
+                          backgroundImage: editstudnet.updateimage != null
+                              ? FileImage(File(editstudnet.updateimage))
+                              : FileImage(File(student.imagex)),
                           radius: 80,
                         ),
                       ),
@@ -77,7 +72,7 @@ class _EditStudentState extends State<EditStudent> {
                       Expanded(
                         child: TextFormField(
                           keyboardType: TextInputType.name,
-                          controller: _nameController,
+                          controller: editstudnet.nameController,
                           decoration: InputDecoration(
                             labelText: "Name",
                             border: OutlineInputBorder(
@@ -104,7 +99,7 @@ class _EditStudentState extends State<EditStudent> {
                       Expanded(
                         child: TextFormField(
                           keyboardType: TextInputType.text,
-                          controller: _classController,
+                          controller: editstudnet.classController,
                           decoration: InputDecoration(
                             labelText: "Class",
                             border: OutlineInputBorder(
@@ -131,7 +126,7 @@ class _EditStudentState extends State<EditStudent> {
                       Expanded(
                         child: TextFormField(
                           keyboardType: TextInputType.name,
-                          controller: _guardianController,
+                          controller: editstudnet.guardianController,
                           decoration: InputDecoration(
                             labelText: "Parent",
                             border: OutlineInputBorder(
@@ -158,7 +153,7 @@ class _EditStudentState extends State<EditStudent> {
                       Expanded(
                         child: TextFormField(
                           keyboardType: TextInputType.number,
-                          controller: _mobileController,
+                          controller: editstudnet.mobileController,
                           decoration: InputDecoration(
                             labelText: "Mobile",
                             border: OutlineInputBorder(
@@ -182,108 +177,6 @@ class _EditStudentState extends State<EditStudent> {
             )),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController.text = widget.student.name;
-    _classController.text = widget.student.classname;
-    _guardianController.text = widget.student.father;
-    _mobileController.text = widget.student.pnumber;
-    updatedImagepath = widget.student.imagex;
-  }
-
-  @override
-  void didUpdateWidget(covariant oldWidget) {
-    super.didUpdateWidget(oldWidget);
-  }
-
-  Future<void> geterimage(ImageSource source) async {
-    final image = await ImagePicker().pickImage(source: source);
-    if (image == null) {
-      return;
-    }
-    setState(() {
-      updatedImagepath = image.path.toString();
     });
-  }
-
-  Future<void> editstudentclicked(
-      BuildContext context, StudentModel student) async {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text.toUpperCase();
-      final classA = _classController.text.toString().trim();
-      final father = _guardianController.text;
-      final phonenumber = _mobileController.text.trim();
-
-      final updatedStudent = StudentModel(
-        id: student.id,
-        name: name,
-        classname: classA,
-        father: father,
-        pnumber: phonenumber,
-        imagex: updatedImagepath ?? student.imagex,
-      );
-
-      await editStudent(
-        student.id!,
-        updatedStudent.name,
-        updatedStudent.classname,
-        updatedStudent.father,
-        updatedStudent.pnumber,
-        updatedStudent.imagex,
-      );
-
-      // Refresh the data in the StudentList widget.
-      getstudentdata();
-
-      Navigator.of(context).pop();
-    }
-  }
-
-  void editphoto(ctxr) {
-    showDialog(
-      context: ctxr,
-      builder: (ctxr) {
-        return AlertDialog(
-          title: const Text('Update Photo '),
-          actions: [
-            Column(
-              children: [
-                Row(
-                  children: [
-                    const Text('Choose from camera'),
-                    IconButton(
-                      onPressed: () {
-                        geterimage(ImageSource.camera);
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(
-                        Icons.camera_alt_rounded,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Text('Choose from gallery '),
-                    IconButton(
-                      onPressed: () {
-                        geterimage(ImageSource.gallery);
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(
-                        Icons.image,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
   }
 }

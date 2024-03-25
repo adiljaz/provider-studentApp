@@ -1,11 +1,11 @@
 // ignore_for_file: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
 
-import 'package:flutter/material.dart';
+
 import 'package:h1/function/model.dart';
+import 'package:h1/provider/data_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-
-ValueNotifier<List<StudentModel>> studentList = ValueNotifier([]);
 late Database _db;
 Future<void> initializeDatabase() async {
   _db = await openDatabase(
@@ -16,38 +16,38 @@ Future<void> initializeDatabase() async {
           'CREATE TABLE student (id INTEGER PRIMARY KEY, name TEXT, classname TEXT, father TEXT, pnumber TEXT, imagex TEXT)');
     },
   );
-  print("Database created successfully.");
 }
 
-Future<void> getstudentdata() async {
+Future<List<StudentModel>> getstudentdata() async {
   final result = await _db.rawQuery("SELECT * FROM student");
-  print('All Students data : ${result}');
-  studentList.value.clear();
-  result.forEach((map) {
-    final student = StudentModel.fromMap(map);
-    studentList.value.add(student);
-  });
-  studentList.notifyListeners();
+
+  List<StudentModel> sd = [];
+  for (var map in result) {
+    final studnet = StudentModel.fromMap(map);
+    sd.add(studnet);
+  }
+
+  return sd;
 }
 
-Future<void> addstudent(StudentModel value) async {
+Future<void> addstudent(StudentModel value, context) async {
   try {
     await _db.rawInsert(
       'INSERT INTO student(name,classname,father,pnumber,imagex) VALUES(?,?,?,?,?)',
       [value.name, value.classname, value.father, value.pnumber, value.imagex],
     );
-    getstudentdata();
+   await Provider.of<StudnetProvier>(context).initialize();
   } catch (e) {
     print('Error inserting data: $e');
   }
 }
 
-Future<void> deleteStudent(id) async {
+Future<void> deleteStudent(id,context) async {
   await _db.delete('student', where: 'id=?', whereArgs: [id]);
-  getstudentdata();
+ await Provider.of<StudnetProvier>(context,listen: false).initialize(); 
 }
 
-Future<void> editStudent(id, name, classname, father, pnumber, imagex) async {
+Future<void> editStudent(id, name, classname, father, pnumber, imagex,context) async {
   final dataflow = {
     'name': name,
     'classname': classname,
@@ -56,6 +56,5 @@ Future<void> editStudent(id, name, classname, father, pnumber, imagex) async {
     'imagex': imagex,
   };
   await _db.update('student', dataflow, where: 'id=?', whereArgs: [id]);
-  getstudentdata();
+  await Provider.of<StudnetProvier>(context,listen: false).initialize(); 
 }
-

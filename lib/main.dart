@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:h1/function/functions.dart';
+import 'package:h1/provider/add_provider.dart';
+import 'package:h1/provider/data_provider.dart';
+import 'package:h1/provider/edit_provider.dart';
 import 'package:h1/screens/splash.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,12 +17,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primaryColor: Colors.lightBlue,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AddProvider()),
+        ChangeNotifierProvider(create: (context)=>Editprovider()),
+        ChangeNotifierProvider(create: (context)=>StudnetProvier()),
+        
+      ],
+      child: MaterialApp(
+        theme: ThemeData(
+          primaryColor: Colors.lightBlue,
+        ),
+        debugShowCheckedModeBanner: false,
+        home: const splashScreen(),
       ),
-      debugShowCheckedModeBanner: false,
-      home: const splashScreen(),
     );
   }
 }

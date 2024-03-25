@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:h1/function/functions.dart';
+import 'package:h1/provider/data_provider.dart';
 import 'package:h1/screens/studentdetails.dart';
+import 'package:provider/provider.dart';
 
 class Gridlist extends StatelessWidget {
   const Gridlist({super.key});
@@ -10,15 +11,13 @@ class Gridlist extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ValueListenableBuilder(
-          valueListenable: studentList,
-          builder: (context, value, child) {
-            return GridView.builder(
-                itemCount: value.length,
+      body: Consumer<StudnetProvier>(builder: (context,studnet,child){
+        return  GridView.builder(
+                itemCount: studnet.studnetlist.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2),
                 itemBuilder: (context, index) {
-                  final SD = value[index];
+                  final SD = studnet.studnetlist[index];
 
                   return Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -47,8 +46,9 @@ class Gridlist extends StatelessWidget {
                           ),
                         ),
                       ));
-                });
-          }),
+                }); 
+      })
+          
     );
   }
 }

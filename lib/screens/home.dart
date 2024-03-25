@@ -33,7 +33,7 @@ class _HomeScreeenState extends State<HomeScreeen> {
           IconButton(
               onPressed: () {
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (ctxs) => const SearchScreen()));
+                    MaterialPageRoute(builder: (ctxs) => SearchScreen()));
               },
               icon: const Icon(
                 Icons.search_rounded,
