@@ -8,7 +8,7 @@ import 'package:sqflite/sqflite.dart';
 
 late Database _db;
 Future<void> initializeDatabase() async {
-  _db = await openDatabase(
+  _db = await openDatabase( //
     'student_db',
     version: 1,
     onCreate: (Database db, version) async {
@@ -22,7 +22,7 @@ Future<List<StudentModel>> getstudentdata() async {
   final result = await _db.rawQuery("SELECT * FROM student");
 
   List<StudentModel> sd = [];
-  for (var map in result) {
+  for (var map in result) { 
     final studnet = StudentModel.fromMap(map);
     sd.add(studnet);
   }
